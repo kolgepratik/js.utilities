@@ -1,0 +1,573 @@
+// ==UserScript==
+// @name         Auto Scroll Any Website
+// @namespace    http://tampermonkey.net/
+// @version      0.1
+// @description  try to take over the world!
+// @author       You
+// @match        *://*/**
+// @grant        none
+// ==/UserScript==
+
+(function() {
+    'use strict';
+    
+    let width = undefined;
+    let height = undefined;
+    let WIDTH_OFFSET = undefined;
+    let HEIGHT_OFFSET = undefined;
+    let WIDTH_SCROLL_SIZE = undefined;
+    let HEIGHT_SCROLL_SIZE = undefined;
+    let SCROLL_AREA_SIZE_HORIZONTAL = undefined;
+    let SCROLL_AREA_SIZE_VERTICAL = undefined;
+    let SCROLL_AREA_WIDTH = undefined;
+    let SCROLL_AREA_PADDING_TOP = undefined;
+    let SCROLL_AREA_PADDING_LEFT = undefined;
+
+    let CREATE_UI_DELAY_MS = 2000;
+    let CREATE_UI_OPACITY = 0.5;
+
+    let isMaxBottom = function () {
+        return false;
+    };
+
+    let isMaxTop = function () {
+        return false;
+    };
+
+    let isMaxLeft = function () {
+        return false;
+    };
+
+    let isMaxRight = function () {
+        return false;
+    };
+
+    function addDivStyle (divElement) {
+        divElement.style.background = 'lightgray';
+        divElement.style.opacity = CREATE_UI_OPACITY;
+        divElement.style.position = 'fixed';
+        divElement.style.zIndex = 99999;
+        divElement.style['pointer-events'] = 'none';
+        divElement.style['border-radius'] = '10px';
+    }
+
+    function createLeftDiv () {
+        var leftDiv = document.getElementById ('div_left_kp');
+        if (leftDiv) {
+            leftDiv.parentNode.removeChild(leftDiv);
+        }
+
+        var divLeft = document.createElement("div");
+        divLeft.id = 'div_left_kp';
+        addDivStyle(divLeft);
+
+        divLeft.style.width = SCROLL_AREA_WIDTH + 'px';
+        divLeft.style.height = SCROLL_AREA_SIZE_VERTICAL + 'px';
+        divLeft.style.top = SCROLL_AREA_SIZE_VERTICAL/2 + 'px';
+        divLeft.style.left = SCROLL_AREA_PADDING_LEFT + 'px';
+
+        divLeft.appendChild(document.createTextNode(""));
+
+        document.body.appendChild (divLeft);
+    };
+
+    function createRightDiv () {
+        var leftDiv = document.getElementById ('div_right_kp');
+        if (leftDiv) {
+            leftDiv.parentNode.removeChild(leftDiv);
+        }
+
+        var divLeft = document.createElement("div");
+        divLeft.id = 'div_right_kp';
+        addDivStyle(divLeft);
+
+        divLeft.style.width = SCROLL_AREA_WIDTH + 'px';
+        divLeft.style.height = SCROLL_AREA_SIZE_VERTICAL + 'px';
+        divLeft.style.top = SCROLL_AREA_SIZE_VERTICAL/2 + 'px';
+        divLeft.style.left = (width - SCROLL_AREA_WIDTH - SCROLL_AREA_PADDING_LEFT) + 'px';
+
+        divLeft.appendChild(document.createTextNode(""));
+
+        document.body.appendChild (divLeft);
+    };
+
+    function createTopDiv () {
+        var leftDiv = document.getElementById ('div_top_kp');
+        if (leftDiv) {
+            leftDiv.parentNode.removeChild(leftDiv);
+        }
+
+        var divLeft = document.createElement("div");
+        divLeft.id = 'div_top_kp';
+        addDivStyle(divLeft);
+
+        divLeft.style.width = SCROLL_AREA_SIZE_HORIZONTAL + 'px';
+        divLeft.style.height = SCROLL_AREA_WIDTH + 'px';
+        divLeft.style.top = SCROLL_AREA_PADDING_TOP + 'px';
+        divLeft.style.left = SCROLL_AREA_SIZE_HORIZONTAL/2 + 'px';
+
+        divLeft.appendChild(document.createTextNode(""));
+
+        document.body.appendChild (divLeft);
+    };
+
+    function createBottomDiv () {
+        var leftDiv = document.getElementById ('div_bottom_kp');
+        if (leftDiv) {
+            leftDiv.parentNode.removeChild(leftDiv);
+        }
+
+        var divLeft = document.createElement("div");
+        divLeft.id = 'div_bottom_kp';
+        addDivStyle(divLeft);
+
+        divLeft.style.width = SCROLL_AREA_SIZE_HORIZONTAL + 'px';
+        divLeft.style.height = SCROLL_AREA_WIDTH + 'px';
+        divLeft.style.top = (height - SCROLL_AREA_WIDTH - SCROLL_AREA_PADDING_TOP) + 'px';
+        divLeft.style.left = SCROLL_AREA_SIZE_HORIZONTAL/2 + 'px';
+
+        divLeft.appendChild(document.createTextNode(""));
+
+        document.body.appendChild (divLeft);
+    };
+
+    let createInterface = function () {
+        createLeftDiv();
+        createRightDiv();
+        createTopDiv();
+        createBottomDiv();
+
+        console.log ('Created New UI');
+    };
+
+    let setup = function () {
+        width = window.innerWidth;
+        height = window.innerHeight;
+
+        WIDTH_OFFSET = 50;
+        HEIGHT_OFFSET = 100;
+
+        WIDTH_SCROLL_SIZE = 0.02 * width;
+        HEIGHT_SCROLL_SIZE = 0.02 * height;
+
+        SCROLL_AREA_SIZE_HORIZONTAL = 0.5 * width;
+        SCROLL_AREA_SIZE_VERTICAL = 0.5 * height;
+
+        SCROLL_AREA_PADDING_TOP = 0.001 * width;
+        SCROLL_AREA_PADDING_LEFT = 0.001 * height;
+
+        SCROLL_AREA_WIDTH = WIDTH_OFFSET;
+
+        console.log (`detected screen size: width: ${width} , height: ${height}`);
+    };
+
+    let re_size = function () {
+        setup();
+        setTimeout (createInterface, CREATE_UI_DELAY_MS);
+    };
+
+    window.addEventListener ('resize', re_size, false);
+
+    re_size();
+
+    function scroll_left (e) {
+        let mouse_x = e.clientX;
+        let mouse_y = e.clientY;
+
+        // scroll left
+        if (!isMaxLeft()) {
+            console.log ('left');
+            window.scrollBy(-WIDTH_SCROLL_SIZE, window.scrollTop);
+        } else {
+            console.log ('NO left');
+        }
+    }
+
+    function scroll_right (e) {
+        let mouse_x = e.clientX;
+        let mouse_y = e.clientY;
+
+        // scroll right
+        if (!isMaxRight()) {
+            console.log ('right');
+            window.scrollBy(WIDTH_SCROLL_SIZE, window.scrollTop);
+        } else {
+            console.log ('NO right');
+        }
+    }
+
+    function scroll_up (e) {
+        let mouse_x = e.clientX;
+        let mouse_y = e.clientY;
+
+        // scroll up
+        if (!isMaxTop()) {
+            console.log ('up');
+            window.scrollBy(window.scrollLeft, -HEIGHT_SCROLL_SIZE);
+        } else {
+            console.log ('NO up');
+        }
+    }
+
+    function scroll_down (e) {
+        let mouse_x = e.clientX;
+        let mouse_y = e.clientY;
+
+        // scroll down
+        if (!isMaxBottom()) {
+            console.log ('down');
+            window.scrollBy(window.scrollLeft, HEIGHT_SCROLL_SIZE);
+        } else {
+            console.log ('NO down');
+        }
+    }
+
+    let do_scroll = function (e) {
+        let mouse_x = e.clientX;
+        let mouse_y = e.clientY;
+
+        if (mouse_x > (width - WIDTH_OFFSET)) {
+            scroll_right(e);
+        }
+
+        if (mouse_x < WIDTH_OFFSET) {
+            scroll_left(e);
+        }
+
+        if (mouse_y > (height - HEIGHT_OFFSET)) {
+            scroll_down(e);
+        }
+
+        if (mouse_y < HEIGHT_OFFSET) {
+            scroll_up(e);
+        }
+    };
+
+    document.onmousemove = do_scroll;
+})();
+
+// ==UserScript==
+// @name         Auto Scroll Any Website With SINGLE SCROLLBAR
+// @namespace    http://tampermonkey.net/
+// @version      0.1
+// @description  try to take over the world!
+// @author       You
+// @match        *://*/**
+// @grant        none
+// ==/UserScript==
+
+(function() {
+    'use strict';
+
+    let width = undefined;
+    let height = undefined;
+    let WIDTH_OFFSET = undefined;
+    let HEIGHT_OFFSET = undefined;
+    let WIDTH_SCROLL_SIZE = undefined;
+    let HEIGHT_SCROLL_SIZE = undefined;
+    let SCROLL_AREA_SIZE_HORIZONTAL = undefined;
+    let SCROLL_AREA_SIZE_VERTICAL = undefined;
+    let SCROLL_AREA_WIDTH = undefined;
+    let SCROLL_AREA_PADDING_TOP = undefined;
+    let SCROLL_AREA_PADDING_LEFT = undefined;
+
+    let CREATE_UI_DELAY_MS = 2000;
+    let CREATE_UI_OPACITY = 0.5;
+
+    let old_x = 0;
+    let old_y = 0;
+
+    function get_horizontal_scroll_direction (x, y) {
+        let direction = (x - old_x > 0) ? 'RIGHT' : 'LEFT';
+
+        return direction;
+    }
+
+    function get_vertical_scroll_direction (x, y) {
+        let direction = (y - old_y > 0) ? 'DOWN' : 'UP';
+
+        return direction;
+    }
+
+    function get_active_element_if_any() {
+        let active_element = document.activeElement;
+
+        if (active_element) {
+            if (active_element.clientHeight < active_element.scrollHeight) {
+                return active_element;
+            }
+        }
+
+        return undefined;
+    }
+
+    function update_old_xy (x, y) {
+        old_x = x;
+        old_y = y;
+    }
+
+    let isMaxBottom = function () {
+        return false;
+    };
+
+    let isMaxTop = function () {
+        return false;
+    };
+
+    let isMaxLeft = function () {
+        return false;
+    };
+
+    let isMaxRight = function () {
+        return false;
+    };
+
+    function addDivStyle (divElement) {
+        divElement.style.background = 'lightgray';
+        divElement.style.opacity = CREATE_UI_OPACITY;
+        divElement.style.position = 'fixed';
+        divElement.style.zIndex = 99999;
+        divElement.style['pointer-events'] = 'none';
+        divElement.style['border-radius'] = '10px';
+    }
+
+    function createLeftDiv () {
+        var leftDiv = document.getElementById ('div_left_kp');
+        if (leftDiv) {
+            leftDiv.parentNode.removeChild(leftDiv);
+        }
+
+        var divLeft = document.createElement("div");
+        divLeft.id = 'div_left_kp';
+        addDivStyle(divLeft);
+
+        divLeft.style.width = SCROLL_AREA_WIDTH + 'px';
+        divLeft.style.height = SCROLL_AREA_SIZE_VERTICAL + 'px';
+        divLeft.style.top = SCROLL_AREA_SIZE_VERTICAL/2 + 'px';
+        divLeft.style.left = SCROLL_AREA_PADDING_LEFT + 'px';
+
+        divLeft.appendChild(document.createTextNode(""));
+
+        document.body.appendChild (divLeft);
+    };
+
+    function createRightDiv () {
+        var leftDiv = document.getElementById ('div_right_kp');
+        if (leftDiv) {
+            leftDiv.parentNode.removeChild(leftDiv);
+        }
+
+        var divLeft = document.createElement("div");
+        divLeft.id = 'div_right_kp';
+        addDivStyle(divLeft);
+
+        divLeft.style.width = SCROLL_AREA_WIDTH + 'px';
+        divLeft.style.height = SCROLL_AREA_SIZE_VERTICAL + 'px';
+        divLeft.style.top = SCROLL_AREA_SIZE_VERTICAL/2 + 'px';
+        divLeft.style.left = (width - SCROLL_AREA_WIDTH - SCROLL_AREA_PADDING_LEFT) + 'px';
+
+        divLeft.appendChild(document.createTextNode(""));
+
+        document.body.appendChild (divLeft);
+    };
+
+    function createTopDiv () {
+        var leftDiv = document.getElementById ('div_top_kp');
+        if (leftDiv) {
+            leftDiv.parentNode.removeChild(leftDiv);
+        }
+
+        var divLeft = document.createElement("div");
+        divLeft.id = 'div_top_kp';
+        addDivStyle(divLeft);
+
+        divLeft.style.width = SCROLL_AREA_SIZE_HORIZONTAL + 'px';
+        divLeft.style.height = SCROLL_AREA_WIDTH + 'px';
+        divLeft.style.top = SCROLL_AREA_PADDING_TOP + 'px';
+        divLeft.style.left = SCROLL_AREA_SIZE_HORIZONTAL/2 + 'px';
+
+        divLeft.appendChild(document.createTextNode(""));
+
+        document.body.appendChild (divLeft);
+    };
+
+    function createBottomDiv () {
+        var leftDiv = document.getElementById ('div_bottom_kp');
+        if (leftDiv) {
+            leftDiv.parentNode.removeChild(leftDiv);
+        }
+
+        var divLeft = document.createElement("div");
+        divLeft.id = 'div_bottom_kp';
+        addDivStyle(divLeft);
+
+        divLeft.style.width = SCROLL_AREA_SIZE_HORIZONTAL + 'px';
+        divLeft.style.height = SCROLL_AREA_WIDTH + 'px';
+        divLeft.style.top = (height - SCROLL_AREA_WIDTH - SCROLL_AREA_PADDING_TOP) + 'px';
+        divLeft.style.left = SCROLL_AREA_SIZE_HORIZONTAL/2 + 'px';
+
+        divLeft.appendChild(document.createTextNode(""));
+
+        document.body.appendChild (divLeft);
+    };
+
+    let createInterface = function () {
+        //createLeftDiv();
+        //createRightDiv();
+        //createTopDiv();
+        createBottomDiv();
+
+        console.log ('Created New UI');
+    };
+
+    let setup = function () {
+        width = window.innerWidth;
+        height = window.innerHeight;
+
+        WIDTH_OFFSET = 50;
+        HEIGHT_OFFSET = 100;
+
+        WIDTH_SCROLL_SIZE = 0.02 * width;
+        HEIGHT_SCROLL_SIZE = 0.02 * height;
+
+        SCROLL_AREA_SIZE_HORIZONTAL = 0.5 * width;
+        SCROLL_AREA_SIZE_VERTICAL = 0.5 * height;
+
+        SCROLL_AREA_PADDING_TOP = 0.001 * width;
+        SCROLL_AREA_PADDING_LEFT = 0.001 * height;
+
+        SCROLL_AREA_WIDTH = WIDTH_OFFSET;
+
+        console.log (`detected screen size: width: ${width} , height: ${height}`);
+    };
+
+    let re_size = function () {
+        setup();
+        setTimeout (createInterface, CREATE_UI_DELAY_MS);
+    };
+
+    window.addEventListener ('resize', re_size, false);
+
+    re_size();
+
+    function scroll_left (e, active_element) {
+        let mouse_x = e.clientX;
+        let mouse_y = e.clientY;
+
+        // scroll left
+        if (!isMaxLeft()) {
+            console.log ('left');
+            if (active_element) {
+                active_element.scrollLeft = active_element.scrollLeft - WIDTH_SCROLL_SIZE;
+            } else {
+                window.scrollBy(-WIDTH_SCROLL_SIZE, window.scrollTop);
+            }
+        } else {
+            console.log ('NO left');
+        }
+    }
+
+    function scroll_right (e, active_element) {
+        let mouse_x = e.clientX;
+        let mouse_y = e.clientY;
+
+        // scroll right
+        if (!isMaxRight()) {
+            console.log ('right');
+            if (active_element) {
+                active_element.scrollLeft = active_element.scrollLeft + WIDTH_SCROLL_SIZE;
+            } else {
+                window.scrollBy(WIDTH_SCROLL_SIZE, window.scrollTop);
+            }
+        } else {
+            console.log ('NO right');
+        }
+    }
+
+    function scroll_up (e, active_element) {
+        let mouse_x = e.clientX;
+        let mouse_y = e.clientY;
+
+        // scroll up
+        if (!isMaxTop()) {
+            console.log ('up');
+            if (active_element) {
+                active_element.scrollTop = active_element.scrollTop - HEIGHT_SCROLL_SIZE;
+            } else {
+                window.scrollBy(window.scrollLeft, -HEIGHT_SCROLL_SIZE);
+            }
+        } else {
+            console.log ('NO up');
+        }
+    }
+
+    function scroll_down (e, active_element) {
+        let mouse_x = e.clientX;
+        let mouse_y = e.clientY;
+
+        // scroll down
+        if (!isMaxBottom()) {
+            console.log ('down');
+            if (active_element) {
+                active_element.scrollTop = active_element.scrollTop + HEIGHT_SCROLL_SIZE;
+            } else {
+                window.scrollBy(window.scrollLeft, HEIGHT_SCROLL_SIZE);
+            }
+        } else {
+            console.log ('NO down');
+        }
+    }
+
+    function single_scrollbar_action (e, active_element) {
+        let mouse_x = e.clientX;
+        let mouse_y = e.clientY;
+
+        // scroll down
+        if (!isMaxBottom()) {
+            console.log ('down');
+
+            if (e.shiftKey || e.buttons === 1 || e.which === 1 || e.button === 1) {
+                if (get_horizontal_scroll_direction(mouse_x, mouse_y) === 'LEFT') {
+                    scroll_left(e, active_element);
+                } else {
+                    scroll_right(e, active_element);
+                }
+            } else {
+                if (get_horizontal_scroll_direction(mouse_x, mouse_y) === 'LEFT') {
+                    scroll_up(e, active_element);
+                } else {
+                    scroll_down(e, active_element);
+                }
+            }
+        } else {
+            console.log ('NO down');
+        }
+    }
+
+    let do_scroll = function (e) {
+        let mouse_x = e.clientX;
+        let mouse_y = e.clientY;
+
+        let active_element = get_active_element_if_any();
+
+        if (mouse_y > (height - HEIGHT_OFFSET)) {
+            single_scrollbar_action(e, active_element);
+        }
+
+        if (mouse_x > (width - WIDTH_OFFSET)) {
+            //scroll_right(e);
+        }
+
+        if (mouse_x < WIDTH_OFFSET) {
+            //scroll_left(e);
+        }
+
+        if (mouse_y < HEIGHT_OFFSET) {
+            //scroll_up(e);
+        }
+
+        update_old_xy(mouse_x, mouse_y);
+    };
+
+    document.onmousemove = do_scroll;
+})();
